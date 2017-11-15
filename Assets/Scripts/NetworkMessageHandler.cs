@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 
-public class NetworkMessageHandler : NetworkBehaviour
+public abstract class NetworkMessageHandler : NetworkBehaviour
 {
     public const short movement_msg = 1337;
 

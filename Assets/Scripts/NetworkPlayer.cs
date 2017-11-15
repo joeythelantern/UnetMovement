@@ -24,6 +24,16 @@ public class NetworkPlayer : NetworkMessageHandler
     private float cameraX = 0;
     private float cameraY = 0;
 
+    [Header("Lerping Properties")]
+    public bool isLerpingPosition;
+    public bool isLerpingRotation;
+    public Vector3 realPosition;
+    public Quaternion realRotation;
+    public Vector3 lastRealPosition;
+    public Quaternion lastRealRotation;
+    public float timeStartedLerping;
+    public float timeToLerp;
+
     private void Start()
     {
         playerID = "player" + GetComponent<NetworkIdentity>().netId.ToString();
@@ -39,6 +49,14 @@ public class NetworkPlayer : NetworkMessageHandler
 
             canSendNetworkMovement = false;
             RegisterNetworkMessages();
+        }
+        else
+        {
+            isLerpingPosition = false;
+            isLerpingRotation = false;
+
+            realPosition = transform.position;
+            realRotation = transform.rotation;
         }
     }
 
@@ -57,10 +75,25 @@ public class NetworkPlayer : NetworkMessageHandler
         }
     }
 
-    public void ReceiveMovementMessage(Vector3 _pos, Quaternion _rot, float _time)
+    public void ReceiveMovementMessage(Vector3 _position, Quaternion _rotation, float _timeToLerp)
     {
-        transform.position = _pos;
-        transform.rotation = _rot;
+        lastRealPosition = realPosition;
+        lastRealRotation = realRotation;
+        realPosition = _position;
+        realRotation = _rotation;
+        timeToLerp = _timeToLerp;
+
+        if(realPosition != transform.position)
+        {
+            isLerpingPosition = true;
+        }
+
+        if(realRotation.eulerAngles != transform.rotation.eulerAngles)
+        {
+            isLerpingRotation = true;
+        }
+
+        timeStartedLerping = Time.time;
     }
 
     private void Update()
@@ -152,5 +185,30 @@ public class NetworkPlayer : NetworkMessageHandler
         };
 
         NetworkManager.singleton.client.Send(movement_msg, _msg);
+    }
+
+    private void FixedUpdate()
+    {
+        if(!isLocalPlayer)
+        {
+            NetworkLerp();
+        }
+    }
+
+    private void NetworkLerp()
+    {
+        if(isLerpingPosition)
+        {
+            float lerpPercentage = (Time.time - timeStartedLerping) / timeToLerp;
+
+            transform.position = Vector3.Lerp(lastRealPosition, realPosition, lerpPercentage);
+        }
+
+        if(isLerpingRotation)
+        {
+            float lerpPercentage = (Time.time - timeStartedLerping) / timeToLerp;
+
+            transform.rotation = Quaternion.Lerp(lastRealRotation, realRotation, lerpPercentage);
+        }
     }
 }
