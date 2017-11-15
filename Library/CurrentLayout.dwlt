@@ -109,7 +109,7 @@ MonoBehaviour:
   m_MinSize: {x: 683, y: 492}
   m_MaxSize: {x: 14004, y: 14042}
   vertical: 0
-  controlID: 111
+  controlID: 11
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -402,19 +402,19 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 0
     m_Folders:
-    - Assets/Scripts
+    - Assets/Scenes
   m_ViewMode: 1
   m_StartGridSize: 95
   m_LastFolders:
-  - Assets/Scripts
+  - Assets/Scenes
   m_LastFoldersGridSize: 95
   m_LastProjectPath: F:\Unity Tutorials\UnetMovement
   m_IsLocked: 1
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 1a290000
-    m_LastClickedID: 10522
-    m_ExpandedIDs: 8828000000ca9a3bffffff7f
+    m_SelectedIDs: c8270000
+    m_LastClickedID: 10184
+    m_ExpandedIDs: 000000008827000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -442,7 +442,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 56060000
     m_LastClickedID: 1622
-    m_ExpandedIDs: 
+    m_ExpandedIDs: 0000000088270000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -527,7 +527,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 72befeffe4cbfeff82d4feffe8d4feff20d6feff28d6feff20fafeffd21dffff441effff7c1fffff841fffff9037ffff2e6cffffba6efffff0a1ffff26a4ffffd2a5ffff1cd4ffff00faffff00000000
+    m_ExpandedIDs: d897ffff4a98ffff8699ffff8e99ffffdca1ffff42aeffff6cb4ffff34e0ffffa8e0ffffeae1fffff6e1ffffb2e6ffff9efbfffff4ffffff00000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

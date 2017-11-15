@@ -2,11 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Networking.NetworkSystem;
+using PlayerManager;
 
-public class NetworkPlayer : NetworkBehaviour
+public class NetworkPlayer : NetworkMessageHandler
 {
+    [Header("Player Properties")]
+    public string playerID;
+
     [Header("Ship Movement Properties")]
+    public bool canSendNetworkMovement;
     public float speed;
+    public float networkSendRate = 5;
+    public float timeBetweenMovementStart;
+    public float timeBetweenMovementEnd;
 
     [Header("Camera Movement Properties")]
     public float distance = 15.0f;
@@ -17,11 +26,41 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void Start()
     {
+        playerID = "player" + GetComponent<NetworkIdentity>().netId.ToString();
+        transform.name = playerID;
+        Manager.Instance.AddPlayerToConnectedPlayers(playerID, gameObject);
+
         if (isLocalPlayer)
         {
+            Manager.Instance.SetLocalPlayerID(playerID);
+
             Camera.main.transform.position = transform.position + new Vector3(0, 0, -20);
             Camera.main.transform.rotation = Quaternion.Euler(0, 0, 0);
+
+            canSendNetworkMovement = false;
+            RegisterNetworkMessages();
         }
+    }
+
+    private void RegisterNetworkMessages()
+    {
+        NetworkManager.singleton.client.RegisterHandler(movement_msg, OnReceiveMovementMessage);
+    }
+
+    private void OnReceiveMovementMessage(NetworkMessage _message)
+    {
+        PlayerMovementMessage _msg = _message.ReadMessage<PlayerMovementMessage>();
+
+        if (_msg.objectTransformName != transform.name)
+        {
+            Manager.Instance.ConnectedPlayers[_msg.objectTransformName].GetComponent<NetworkPlayer>().ReceiveMovementMessage(_msg.objectPosition, _msg.objectRotation, _msg.time);
+        }
+    }
+
+    public void ReceiveMovementMessage(Vector3 _pos, Quaternion _rot, float _time)
+    {
+        transform.position = _pos;
+        transform.rotation = _rot;
     }
 
     private void Update()
@@ -80,5 +119,38 @@ public class NetworkPlayer : NetworkBehaviour
         {
             transform.Rotate(x, y, -z);
         }
+
+        if (!canSendNetworkMovement)
+        {
+            canSendNetworkMovement = true;
+            StartCoroutine(StartNetworkSendCooldown());
+        }
+    }
+
+    private IEnumerator StartNetworkSendCooldown()
+    {
+        timeBetweenMovementStart = Time.time;
+        yield return new WaitForSeconds((1 / networkSendRate));
+        SendNetworkMovement();
+    }
+
+    private void SendNetworkMovement()
+    {
+        timeBetweenMovementEnd = Time.time;
+        SendMovementMessage(playerID, transform.position, transform.rotation, (timeBetweenMovementEnd - timeBetweenMovementStart));
+        canSendNetworkMovement = false;
+    }
+
+    public void SendMovementMessage(string _playerID, Vector3 _position, Quaternion _rotation, float _timeTolerp)
+    {
+        PlayerMovementMessage _msg = new PlayerMovementMessage()
+        {
+            objectPosition = _position,
+            objectRotation = _rotation,
+            objectTransformName = _playerID,
+            time = _timeTolerp
+        };
+
+        NetworkManager.singleton.client.Send(movement_msg, _msg);
     }
 }
